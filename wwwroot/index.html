@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://localhost:5106/hls.js"></script>
+</head>
+<body>
+    <video id="video" width="640" height="480" controls autoplay></video>
+    <script>
+        fetch('http://localhost:5106/api/stream/start/2')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to start stream');
+                return new Promise(resolve => setTimeout(resolve, 15000));
+            })
+            .then(() => {
+                var video = document.getElementById('video');
+                var hlsUrl = 'http://localhost:5106/hls/stream_channel2.m3u8';
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(hlsUrl);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.ERROR, (event, data) => console.error('HLS Error:', data));
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = hlsUrl;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
